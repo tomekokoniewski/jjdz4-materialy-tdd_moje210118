@@ -3,9 +3,9 @@ package com.infoshare.junit.automotive;
 public class CarTesterApp {
 
     public static void main(String[] args) throws Exception {
-        CarTest test = new CarTest();
-        test.emmission_level_should_be_normal();
-        test.engine_should_be_running_after_ignition();
+        CarTester carTester = new CarTester();
+        carTester.testEmissionLevel();
+        carTester.testIgnition();
 
         System.out.println("-                      -");
         System.out.println("Car is ready for a drive");

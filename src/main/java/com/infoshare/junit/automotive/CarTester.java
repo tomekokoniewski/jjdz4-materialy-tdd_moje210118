@@ -1,8 +1,8 @@
 package com.infoshare.junit.automotive;
 
-public class CarTest {
+public class CarTester {
 
-    public void engine_should_be_running_after_ignition() throws Exception {
+    public void testIgnition() throws Exception {
         Car sut = new CarFactory().forBrand(Brand.HONDA).build();
         sut.ignite();
         if (!sut.isRunning()) {
@@ -11,10 +11,9 @@ public class CarTest {
         System.out.println("Car is running after ignition");
     }
 
-    public void emmission_level_should_be_normal() throws Exception {
+    public void testEmissionLevel() throws Exception {
         Car sut = new CarFactory().forBrand(Brand.VW).build();
         sut.ignite();
-//        sut.setLabMode(true);
         if (sut.measurePollution()!=EmissionLevel.NORMAL) {
             throw new RuntimeException("Error! Emmission level is not normal");
         };
