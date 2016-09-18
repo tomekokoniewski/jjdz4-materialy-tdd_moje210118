@@ -16,9 +16,7 @@ public class CarUnitTest {
         Assert.assertTrue("OMG! Car is not running after ignition", sut.isRunning());
     }
 
-    public void honda_engine_should_be_running_after_ignition() throws Exception {
-        // TODO
-    }
+    // TODO write a test that checks if honda can start engine
 
     @Test
     public void honda_emmission_level_should_be_normal() throws Exception {
@@ -34,12 +32,8 @@ public class CarUnitTest {
         Assert.assertTrue("emmission level should be normal", EmissionLevel.NORMAL==sut.measurePollution());
     }
 
-    public void toyota_emission_level_should_be_normal() throws Exception {
-        // TODO
-    }
+    // TODO write a test that checks if toyota has a normal emission level
 
-    public void should_throw_exception_for_unknown_brands() throws Exception {
-        // TODO
-    }
+    // TODO write a test that checks if we throw an exception for unsupported brands
 
 }
