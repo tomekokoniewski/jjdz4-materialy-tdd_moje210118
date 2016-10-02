@@ -3,6 +3,7 @@ package com.infoshare.junit.banking;
 import com.google.common.collect.ImmutableSet;
 
 import java.math.BigDecimal;
+import java.math.MathContext;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.HashSet;
@@ -20,18 +21,27 @@ public class Account extends Observable {
         this.owner = owner;
     }
 
+    public BigDecimal getBalance() {
+        return balance;
+    }
+
     public Set<Transaction> history() {
         return ImmutableSet.copyOf(transactions);
     }
 
-    public void register(Transaction transaction) throws DuplicatedTransactionException, NullTransactionException {
+    public void register(Transaction transaction) throws DuplicatedTransactionException, InvalidTransactionException {
         if (transaction==null) {
-            throw new NullTransactionException();
+            throw new InvalidTransactionException();
         }
         if (transactions.contains(transaction)) {
             throw new DuplicatedTransactionException();
         }
+        BigDecimal newBalance = balance.add(transaction.getAmount(), MathContext.DECIMAL32);
+        if (-1==newBalance.signum()) {
+            throw new InvalidTransactionException();
+        }
         transactions.add(transaction);
+        balance = newBalance;
         notifyObservers(transaction);
     }
 

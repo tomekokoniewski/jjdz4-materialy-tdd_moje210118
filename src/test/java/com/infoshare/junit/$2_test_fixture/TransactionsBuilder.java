@@ -1,16 +1,21 @@
 package com.infoshare.junit.$2_test_fixture;
 
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Lists;
 import com.infoshare.junit.banking.Account;
 import com.infoshare.junit.banking.DuplicatedTransactionException;
-import com.infoshare.junit.banking.NullTransactionException;
+import com.infoshare.junit.banking.InvalidTransactionException;
 import com.infoshare.junit.banking.Transaction;
 
 import java.math.BigDecimal;
+import java.math.MathContext;
 import java.time.LocalDateTime;
 import java.time.Period;
 import java.time.temporal.ChronoUnit;
-import java.util.Random;
+import java.util.*;
+import java.util.stream.Collectors;
 import java.util.stream.DoubleStream;
+import java.util.stream.Stream;
 
 public class TransactionsBuilder {
     private final Random rand = new Random();
@@ -54,21 +59,41 @@ public class TransactionsBuilder {
         return this;
     }
 
-    public void register(Account account) {
-        Random rand = new Random();
-        DoubleStream doubles = rand.doubles(total, minValue, maxValue);
+    public TransactionsBuilder value(long value) {
+        minValue = maxValue = value;
+        return this;
+    }
+
+    public Set<Transaction> build() {
+        DoubleStream doubles = valueStream();
         long d = diffMinutes / total;
         final int[] transactionCount = {0};
-        doubles.forEach(value -> {
+        return doubles.mapToObj(value -> {
+            LocalDateTime nextDate = dateGenerator.getNextDate(after, d, transactionCount[0]);
+            Transaction transaction = new Transaction(BigDecimal.valueOf(value), nextDate);
+            transactionCount[0]++;
+            return transaction;
+        }).collect(Collectors.toSet());
+    }
+
+    private DoubleStream valueStream() {
+        if (minValue==maxValue) {
+            return DoubleStream.iterate(minValue, i -> minValue).limit(total);
+        }
+        Random rand = new Random();
+        return rand.doubles(total, minValue, maxValue);
+    }
+
+    public void register(Account account) {
+        for (Transaction t: build()) {
             try {
-                LocalDateTime nextDate = dateGenerator.getNextDate(after, d, transactionCount[0]);
-                Transaction transaction = new Transaction(BigDecimal.valueOf(value), nextDate);
-                account.register(transaction);
-                transactionCount[0]++;
-            } catch (DuplicatedTransactionException | NullTransactionException e) {
+                account.register(t);
+            } catch (DuplicatedTransactionException e) {
+                e.printStackTrace();
+            } catch (InvalidTransactionException e) {
                 e.printStackTrace();
             }
-        });
+        }
     }
 
 }

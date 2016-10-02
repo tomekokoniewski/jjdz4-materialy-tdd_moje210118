@@ -1,13 +1,11 @@
 package com.infoshare.junit.$2_test_fixture;
 
-import com.google.common.collect.ImmutableList;
 import com.infoshare.junit.banking.*;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.*;
 import org.junit.experimental.categories.Category;
+import org.junit.runners.MethodSorters;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.Month;
@@ -24,7 +22,6 @@ public class TransactionSetupTest {
 
     private LoggingActivityMonitor accountActivity;
     private Account account;
-    private ImmutableList<Transaction> transactions;
     private static AccountMonitor activityMonitor;
 
     @BeforeClass
@@ -73,9 +70,15 @@ public class TransactionSetupTest {
     }
 
     @Test(expected = DuplicatedTransactionException.class)
-    public void should_not_register_same_transaction_twice() throws DuplicatedTransactionException, NullTransactionException {
+    public void should_not_register_same_transaction_twice() throws Exception {
         Transaction duplicate = account.history().iterator().next();
         account.register(duplicate);
+    }
+
+    @Test(expected = InvalidTransactionException.class)
+    public void should_not_register_overbalance_transaction() throws Exception {
+        Transaction t = new Transaction(account.getBalance().add(BigDecimal.TEN).negate(), LocalDateTime.now());
+        account.register(t);
     }
 
     @AfterClass
