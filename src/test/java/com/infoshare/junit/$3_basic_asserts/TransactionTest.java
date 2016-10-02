@@ -50,6 +50,7 @@ public class TransactionTest {
         new TransactionsBuilder().value(100).totalOf(1).register(account);
         // then
         assertFalse(account.getBalance().equals(originalBalance));
+        // TODO express assert above using hamcrest matchers
     }
 
     @Test
