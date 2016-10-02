@@ -1,9 +1,11 @@
 package com.infoshare.junit.$2_test_fixture;
 
 import com.infoshare.junit.banking.*;
-import org.junit.*;
+import org.junit.AfterClass;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
 import org.junit.experimental.categories.Category;
-import org.junit.runners.MethodSorters;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
