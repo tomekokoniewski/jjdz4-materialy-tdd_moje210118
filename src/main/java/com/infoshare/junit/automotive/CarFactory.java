@@ -1,7 +1,5 @@
 package com.infoshare.junit.automotive;
 
-import static com.infoshare.junit.automotive.Brand.FSO;
-
 public class CarFactory {
     private Brand brand;
 

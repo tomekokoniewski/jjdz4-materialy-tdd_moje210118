@@ -53,7 +53,7 @@ public class TransactionSetupTest {
         for (int i=0;i<100;i++) {
             try {
                 account.register(new Transaction(new BigDecimal(100000*Math.random()), LocalDateTime.of(2015,Month.OCTOBER,1,0,0) ));
-            } catch (DuplicatedTransactionException|NullTransactionException e) {
+            } catch (Exception e) {
                 e.printStackTrace();
             }
         }
@@ -88,7 +88,7 @@ public class TransactionSetupTest {
     }
 
     @Test(expected = DuplicatedTransactionException.class)
-    public void should_not_register_same_transaction_twice() throws DuplicatedTransactionException, NullTransactionException {
+    public void should_not_register_same_transaction_twice() throws Exception {
         // given
         AccountMonitor activityMonitor = new LoggingActivityMonitor();
         activityMonitor.connect();

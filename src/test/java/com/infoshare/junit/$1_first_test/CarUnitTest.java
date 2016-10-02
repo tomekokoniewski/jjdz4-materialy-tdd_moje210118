@@ -1,9 +1,11 @@
 package com.infoshare.junit.$1_first_test;
 
 import com.infoshare.junit.automotive.*;
-import org.junit.Assert;
 import org.junit.Ignore;
 import org.junit.Test;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 public class CarUnitTest {
 
@@ -14,7 +16,7 @@ public class CarUnitTest {
         // when
         sut.ignite();
         // then
-        Assert.assertTrue("OMG! Car is not running after ignition", sut.isRunning());
+        assertTrue("OMG! Car is not running after ignition", sut.isRunning());
     }
 
     @Test
@@ -24,7 +26,7 @@ public class CarUnitTest {
         // when
         sut.ignite();
         // then
-        Assert.assertTrue("OMG! Car is not running after ignition", sut.isRunning());
+        assertTrue("OMG! Car is not running after ignition", sut.isRunning());
     }
 
     @Test
@@ -34,7 +36,7 @@ public class CarUnitTest {
         // when
         sut.ignite();
         // then
-        Assert.assertEquals("emmission level should be normal", EmissionLevel.NORMAL, sut.measurePollution());
+        assertEquals("emmission level should be normal", EmissionLevel.NORMAL, sut.measurePollution());
     }
 
     @Ignore
@@ -46,7 +48,7 @@ public class CarUnitTest {
         sut.ignite();
         ((VW) sut).setLabMode(false);
         // then
-        Assert.assertEquals("emmission level should be normal", EmissionLevel.NORMAL, sut.measurePollution());
+        assertEquals("emmission level should be normal", EmissionLevel.NORMAL, sut.measurePollution());
     }
 
     @Test(expected = Exception.class)
@@ -63,7 +65,7 @@ public class CarUnitTest {
         // when
         sut.ignite();
         // then
-        Assert.assertEquals("emmission level should be normal", EmissionLevel.NORMAL, sut.measurePollution());
+        assertEquals("emmission level should be normal", EmissionLevel.NORMAL, sut.measurePollution());
     }
 
 }

@@ -1,16 +1,21 @@
 package com.infoshare.junit.$2_test_fixture;
 
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Lists;
 import com.infoshare.junit.banking.Account;
 import com.infoshare.junit.banking.DuplicatedTransactionException;
-import com.infoshare.junit.banking.NullTransactionException;
+import com.infoshare.junit.banking.InvalidTransactionException;
 import com.infoshare.junit.banking.Transaction;
 
 import java.math.BigDecimal;
+import java.math.MathContext;
 import java.time.LocalDateTime;
 import java.time.Period;
 import java.time.temporal.ChronoUnit;
-import java.util.Random;
+import java.util.*;
+import java.util.stream.Collectors;
 import java.util.stream.DoubleStream;
+import java.util.stream.Stream;
 
 public class TransactionsBuilder {
     private final Random rand = new Random();
@@ -20,15 +25,26 @@ public class TransactionsBuilder {
     private long diffMinutes;
     private long minValue;
     private long maxValue;
+    private DateGenerator dateGenerator = new LinearDateGenerator();
 
     public TransactionsBuilder after(LocalDateTime dateTime) {
         after = dateTime;
         return this;
     }
 
+    public TransactionsBuilder withRandomDates() {
+        dateGenerator = new RandomDateGenerator();
+        return this;
+    }
+
+    public TransactionsBuilder withLinearDates() {
+        dateGenerator = new LinearDateGenerator();
+        return this;
+    }
+
     public TransactionsBuilder before(LocalDateTime dateTime) {
         before = dateTime;
-        diffMinutes = ChronoUnit.MINUTES.between(after,before);
+        diffMinutes = ChronoUnit.MINUTES.between(after, before);
         return this;
     }
 
@@ -43,22 +59,57 @@ public class TransactionsBuilder {
         return this;
     }
 
-    public void register(Account account) {
+    public TransactionsBuilder value(long value) {
+        minValue = maxValue = value;
+        return this;
+    }
+
+    public Set<Transaction> build() {
+        DoubleStream doubles = valueStream();
+        long d = diffMinutes / total;
+        final int[] transactionCount = {0};
+        return doubles.mapToObj(value -> {
+            LocalDateTime nextDate = dateGenerator.getNextDate(after, d, transactionCount[0]);
+            Transaction transaction = new Transaction(BigDecimal.valueOf(value), nextDate);
+            transactionCount[0]++;
+            return transaction;
+        }).collect(Collectors.toSet());
+    }
+
+    private DoubleStream valueStream() {
+        if (minValue==maxValue) {
+            return DoubleStream.iterate(minValue, i -> minValue).limit(total);
+        }
         Random rand = new Random();
-        DoubleStream doubles = rand.doubles(total, minValue, maxValue);
-        doubles.forEach(value -> {
+        return rand.doubles(total, minValue, maxValue);
+    }
+
+    public void register(Account account) {
+        for (Transaction t: build()) {
             try {
-                LocalDateTime date = getRandomDate();
-                Transaction transaction = new Transaction(BigDecimal.valueOf(value), date);
-                account.register(transaction);
-            } catch (DuplicatedTransactionException|NullTransactionException e) {
+                account.register(t);
+            } catch (DuplicatedTransactionException e) {
+                e.printStackTrace();
+            } catch (InvalidTransactionException e) {
                 e.printStackTrace();
             }
-        });
+        }
     }
 
-    private LocalDateTime getRandomDate() {
-        return after.plusMinutes(rand.nextInt((int) diffMinutes + 1));
-    }
+}
 
+interface DateGenerator {
+    LocalDateTime getNextDate(LocalDateTime start, long periodBetweenDates, int transactionNum);
+}
+
+class LinearDateGenerator implements DateGenerator {
+    public LocalDateTime getNextDate(LocalDateTime start, long periodBetweenDates, int transactionNum) {
+        return start.plusMinutes(periodBetweenDates* transactionNum);
+    }
+}
+
+class RandomDateGenerator implements DateGenerator {
+    public LocalDateTime getNextDate(LocalDateTime start, long periodBetweenDates,int transactionNum){
+        return start.plusMinutes(new Random().nextInt((int)periodBetweenDates+1));
+    }
 }
