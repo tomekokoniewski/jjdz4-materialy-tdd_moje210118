@@ -6,6 +6,7 @@ import com.infoshare.junit.banking.GenericBank;
 import com.infoshare.junit.banking.Transaction;
 import com.infoshare.junit.banking.TransactionStatus;
 import org.assertj.core.api.Condition;
+import org.assertj.core.api.SoftAssertions;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.FixMethodOrder;
@@ -89,12 +90,17 @@ public class TransferTest {
         bank.register(t2);
         bank.process();
         bank.process();
-        // then
-        assertThat(t1).isNotEqualByComparingTo(t2);
-        assertThat(bank.process()).hasSize(2);
-        assertThat(sourceAccount.getBalance()).isEqualTo("8000");
-        assertThat(targetAccount.getBalance()).isEqualTo("12000");
 
+        // then
+        SoftAssertions softly = new SoftAssertions();
+
+        // change any values to see how soft assertions report errors
+        softly.assertThat(t1).isNotEqualByComparingTo(t2);
+        softly.assertThat(bank.process()).hasSize(2);
+        softly.assertThat(sourceAccount.getBalance()).isEqualTo("8000");
+        softly.assertThat(targetAccount.getBalance()).isEqualTo("12000");
+
+        softly.assertAll();
     }
 
     @Test
