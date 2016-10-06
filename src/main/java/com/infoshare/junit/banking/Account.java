@@ -36,10 +36,11 @@ public class Account extends Observable {
         if (transactions.contains(transaction)) {
             throw new DuplicatedTransactionException();
         }
-        BigDecimal newBalance = balance.add(transaction.getAmount(), MathContext.DECIMAL32);
+        BigDecimal newBalance = getBalance().add(transaction.getAmount(), MathContext.DECIMAL32);
         if (-1==newBalance.signum()) {
             throw new InvalidTransactionException();
         }
+        setChanged();
         transactions.add(transaction);
         balance = newBalance;
         notifyObservers(transaction);
