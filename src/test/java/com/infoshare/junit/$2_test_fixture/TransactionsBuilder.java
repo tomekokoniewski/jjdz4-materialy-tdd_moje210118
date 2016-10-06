@@ -1,21 +1,15 @@
 package com.infoshare.junit.$2_test_fixture;
 
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Lists;
-import com.infoshare.junit.banking.Account;
-import com.infoshare.junit.banking.DuplicatedTransactionException;
-import com.infoshare.junit.banking.InvalidTransactionException;
-import com.infoshare.junit.banking.Transaction;
+import com.infoshare.junit.banking.*;
 
 import java.math.BigDecimal;
-import java.math.MathContext;
 import java.time.LocalDateTime;
 import java.time.Period;
 import java.time.temporal.ChronoUnit;
-import java.util.*;
+import java.util.Random;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.DoubleStream;
-import java.util.stream.Stream;
 
 public class TransactionsBuilder {
     private final Random rand = new Random();
@@ -26,6 +20,7 @@ public class TransactionsBuilder {
     private long minValue;
     private long maxValue;
     private DateGenerator dateGenerator = new LinearDateGenerator();
+    private GenericBank bank;
 
     public TransactionsBuilder after(LocalDateTime dateTime) {
         after = dateTime;
@@ -96,6 +91,28 @@ public class TransactionsBuilder {
         }
     }
 
+    public Set<Transaction> transferBetween(Account sourceAccount, Account targetAccount) {
+        DoubleStream doubles = valueStream();
+        long d = diffMinutes / total;
+        final int[] transactionCount = {0};
+        Set<Transaction> transactions = doubles.mapToObj(value -> {
+            LocalDateTime nextDate = dateGenerator.getNextDate(after, d, transactionCount[0]);
+            Transaction transaction = sourceAccount.transferTo(targetAccount, BigDecimal.valueOf(value), nextDate);
+            transactionCount[0]++;
+            return transaction;
+        }).collect(Collectors.toSet());
+        if (bank!=null) {
+            for (Transaction transaction : transactions) {
+                bank.register(transaction);
+            }
+        }
+        return transactions;
+    }
+
+    public TransactionsBuilder using(GenericBank bank) {
+        this.bank = bank;
+        return this;
+    }
 }
 
 interface DateGenerator {

@@ -23,7 +23,7 @@ public class LoggingActivityMonitor implements AccountMonitor {
     @Override
     public void close() {
         System.out.println("");
-        System.out.println("LoggingActivityMonitor closed");
+        System.out.println("LoggingActivityMonitor closed ");
     }
 
     @Override

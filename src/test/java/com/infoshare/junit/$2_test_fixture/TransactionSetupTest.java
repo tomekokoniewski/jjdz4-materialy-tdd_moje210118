@@ -1,10 +1,7 @@
 package com.infoshare.junit.$2_test_fixture;
 
 import com.infoshare.junit.banking.*;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.*;
 import org.junit.experimental.categories.Category;
 
 import java.time.LocalDate;

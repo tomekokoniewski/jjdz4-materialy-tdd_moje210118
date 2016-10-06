@@ -51,4 +51,8 @@ public class Account extends Observable {
             return d.isAfter(start.atStartOfDay()) && d.isBefore(end.atStartOfDay());
         })).collect(Collectors.toList());
     }
+
+    public Transaction transferTo(Account targetAccount, BigDecimal amount, LocalDateTime nextDate) {
+        return new Transaction(amount, nextDate, this, targetAccount);
+    }
 }
