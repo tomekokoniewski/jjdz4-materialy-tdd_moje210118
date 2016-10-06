@@ -20,7 +20,7 @@ public class TransactionsBuilder {
     private long minValue;
     private long maxValue;
     private DateGenerator dateGenerator = new LinearDateGenerator();
-    private GenericBank bank;
+    private TransferBank bank;
 
     public TransactionsBuilder after(LocalDateTime dateTime) {
         after = dateTime;
@@ -72,7 +72,7 @@ public class TransactionsBuilder {
     }
 
     private DoubleStream valueStream() {
-        if (minValue==maxValue) {
+        if (minValue == maxValue) {
             return DoubleStream.iterate(minValue, i -> minValue).limit(total);
         }
         Random rand = new Random();
@@ -80,7 +80,7 @@ public class TransactionsBuilder {
     }
 
     public void register(Account account) {
-        for (Transaction t: build()) {
+        for (Transaction t : build()) {
             try {
                 account.register(t);
             } catch (DuplicatedTransactionException e) {
@@ -97,11 +97,19 @@ public class TransactionsBuilder {
         final int[] transactionCount = {0};
         Set<Transaction> transactions = doubles.mapToObj(value -> {
             LocalDateTime nextDate = dateGenerator.getNextDate(after, d, transactionCount[0]);
-            Transaction transaction = sourceAccount.transferTo(targetAccount, BigDecimal.valueOf(value), nextDate);
-            transactionCount[0]++;
+            Transaction transaction = null;
+            try {
+                transaction = sourceAccount.transferTo(targetAccount, BigDecimal.valueOf(value), nextDate);
+                transactionCount[0]++;
+            } catch (InvalidTransactionException e) {
+                e.printStackTrace();
+            }
             return transaction;
-        }).collect(Collectors.toSet());
-        if (bank!=null) {
+        })
+                .filter(t -> t != null)
+                .collect(Collectors.toSet());
+
+        if (bank != null) {
             for (Transaction transaction : transactions) {
                 bank.register(transaction);
             }
@@ -109,7 +117,7 @@ public class TransactionsBuilder {
         return transactions;
     }
 
-    public TransactionsBuilder using(GenericBank bank) {
+    public TransactionsBuilder using(TransferBank bank) {
         this.bank = bank;
         return this;
     }
@@ -121,12 +129,12 @@ interface DateGenerator {
 
 class LinearDateGenerator implements DateGenerator {
     public LocalDateTime getNextDate(LocalDateTime start, long periodBetweenDates, int transactionNum) {
-        return start.plusMinutes(periodBetweenDates* transactionNum);
+        return start.plusMinutes(periodBetweenDates * transactionNum);
     }
 }
 
 class RandomDateGenerator implements DateGenerator {
-    public LocalDateTime getNextDate(LocalDateTime start, long periodBetweenDates,int transactionNum){
-        return start.plusMinutes(new Random().nextInt((int)periodBetweenDates+1));
+    public LocalDateTime getNextDate(LocalDateTime start, long periodBetweenDates, int transactionNum) {
+        return start.plusMinutes(new Random().nextInt((int) periodBetweenDates + 1));
     }
 }

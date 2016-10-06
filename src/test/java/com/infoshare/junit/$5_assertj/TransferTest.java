@@ -1,10 +1,7 @@
 package com.infoshare.junit.$5_assertj;
 
 import com.infoshare.junit.$2_test_fixture.TransactionsBuilder;
-import com.infoshare.junit.banking.Account;
-import com.infoshare.junit.banking.GenericBank;
-import com.infoshare.junit.banking.Transaction;
-import com.infoshare.junit.banking.TransactionStatus;
+import com.infoshare.junit.banking.*;
 import org.assertj.core.api.Condition;
 import org.assertj.core.api.SoftAssertions;
 import org.junit.Before;
@@ -19,11 +16,13 @@ import java.time.Month;
 import java.util.Collection;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.assertj.core.api.Assertions.catchThrowable;
 
 @FixMethodOrder(MethodSorters.JVM)
 public class TransferTest {
 
-    private static GenericBank bank;
+    private static TransferBank bank;
 
     private Account sourceAccount;
     private Account targetAccount;
@@ -78,7 +77,7 @@ public class TransferTest {
     }
 
     @Test
-    public void processing_without_registered_transactions_should_not_change_accounts() {
+    public void processing_without_registered_transactions_should_not_change_accounts() throws Exception {
         // given
         BigDecimal initialTargetBalance = targetAccount.getBalance();
         Transaction t1, t2;
@@ -154,6 +153,13 @@ public class TransferTest {
                 .filteredOn(isHugeTransfer)
                 .extracting("status")
                 .containsOnly(TransactionStatus.ON_HOLD);
+    }
+
+    @Test
+    public void should_not_transfer_negative_amounts() {
+        assertThatExceptionOfType(InvalidTransactionException.class).isThrownBy(() -> {
+            sourceAccount.transferTo(targetAccount, BigDecimal.valueOf(-500), LocalDateTime.of(2016, Month.OCTOBER, 2, 0, 0));
+        });
     }
 
 }

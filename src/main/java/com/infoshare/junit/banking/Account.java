@@ -52,7 +52,10 @@ public class Account extends Observable {
         })).collect(Collectors.toList());
     }
 
-    public Transaction transferTo(Account targetAccount, BigDecimal amount, LocalDateTime nextDate) {
+    public Transaction transferTo(Account targetAccount, BigDecimal amount, LocalDateTime nextDate) throws InvalidTransactionException {
+        if (amount.signum()<0) {
+            throw new InvalidTransactionException();
+        }
         return new Transaction(amount, nextDate, this, targetAccount);
     }
 }
