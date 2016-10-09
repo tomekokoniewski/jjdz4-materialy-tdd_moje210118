@@ -17,7 +17,7 @@ public class TransferBankTest {
     @Test
     public void stub_account_owners() {
         TransferBank bank = mock(GenericBank.class);
-        when(bank.getAccountFor(any())).thenReturn(new Account("Kent Beck"), new Account("Erich Gamma"));
+        // TODO use when(...).thenReturn(...) to make test pass
 
         Account account1 = bank.getAccountFor("1");
         Account account2 = bank.getAccountFor("2");
@@ -28,17 +28,4 @@ public class TransferBankTest {
         softAssert.assertAll();
     }
 
-    @Test
-    public void verify_private_field() {
-        TransferBank bank = mock(GenericBank.class);
-        when(bank.getAccountFor(any())).thenReturn(new Account("Kent Beck"), new Account("Erich Gamma"));
-
-        Account account1 = bank.getAccountFor("1");
-        Account account2 = bank.getAccountFor("2");
-
-        SoftAssertions softAssert = new SoftAssertions();
-        softAssert.assertThat(account1).extracting("owner").contains("Kent Beck");
-        softAssert.assertThat(account2).extracting("owner").contains("Erich Gamma");
-        softAssert.assertAll();
-    }
 }

@@ -45,7 +45,8 @@ public class BankTest {
         //
         assertThat(sourceAccount.countObservers()).isEqualTo(2);
         assertThat(targetAccount.countObservers()).isEqualTo(2);
-        verify(accountMonitor, times(2)).update(any(), any());
+
+        //  TODO use verify to satisfy test conditions
     }
 
     @Test
@@ -57,10 +58,7 @@ public class BankTest {
         LocalDateTime transactionDate = LocalDateTime.of(2016, Month.OCTOBER, 2, 0, 0);
 
         // when
-        when(sourceAccount.transferTo(isA(Account.class), isA(BigDecimal.class), isA(LocalDateTime.class)))
-                .thenReturn( new Transaction(BigDecimal.valueOf(500), transactionDate, sourceAccount, targetAccount));
-        when(targetAccount.transferTo(isA(Account.class), isA(BigDecimal.class), isA(LocalDateTime.class)))
-                .thenReturn( new Transaction(BigDecimal.valueOf(500), transactionDate, targetAccount, sourceAccount));
+        // TODO use when(...).thenReturn(...) to make test pass
 
         Transaction t = sourceAccount.transferTo(targetAccount, BigDecimal.ZERO, LocalDateTime.now());
         bank.register(t);
@@ -72,6 +70,8 @@ public class BankTest {
 
         // then
         assertThat(t.getAmount()).isEqualTo("500");
+
+        // TODO use verify to satisfy test conditions
         verify(sourceAccount, times(2)).register(any());
         verify(targetAccount, times(2)).register(any());
     }
@@ -79,7 +79,8 @@ public class BankTest {
     @Test
     public void stub_failure_of_transfer_processing() {
         TransferBank bank = mock(GenericBank.class);
-        doThrow(InvalidTransactionException.class).when(bank).process();
+
+        // TODO use doThrow(...).when(...) to make test pass
 
         assertThatThrownBy(bank::process).isInstanceOf(InvalidTransactionException.class);
     }

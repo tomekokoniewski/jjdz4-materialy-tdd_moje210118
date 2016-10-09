@@ -7,6 +7,7 @@ import org.mockito.Mockito;
 
 import java.math.BigDecimal;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -16,17 +17,21 @@ public class TransactionTimeTest {
     @Test
     public void stub_transaction_amount() {
         Transaction t = mock(Transaction.class);
-        when(t.getAmount()).thenReturn(BigDecimal.TEN);
-        Assertions.assertThat(t.getAmount()).isEqualTo("10");
+
+        // TODO use when(...).thenReturn(...) to make test pass
+
+        assertThat(t.getAmount()).isEqualTo("10");
     }
 
     @Test
     public void stub_multiple_calls_to_transaction_amount() {
         Transaction t = mock(Transaction.class);
-        when(t.getAmount()).thenReturn(BigDecimal.TEN, BigDecimal.valueOf(100), BigDecimal.valueOf(1000));
-        Assertions.assertThat(t.getAmount()).isEqualTo("10");
-        Assertions.assertThat(t.getAmount()).isEqualTo("100");
-        Assertions.assertThat(t.getAmount()).isEqualTo("1000");
+
+        // TODO use when(...).thenReturn(...) to make test pass
+
+        assertThat(t.getAmount()).isEqualTo("10");
+        assertThat(t.getAmount()).isEqualTo("100");
+        assertThat(t.getAmount()).isEqualTo("1000");
     }
 
 
