@@ -4,10 +4,7 @@ import com.infoshare.junit.$2_test_fixture.TransactionsBuilder;
 import com.infoshare.junit.banking.*;
 import org.assertj.core.api.Condition;
 import org.assertj.core.api.SoftAssertions;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.FixMethodOrder;
-import org.junit.Test;
+import org.junit.*;
 import org.junit.runners.MethodSorters;
 
 import java.math.BigDecimal;
@@ -17,7 +14,6 @@ import java.util.Collection;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
-import static org.assertj.core.api.Assertions.catchThrowable;
 
 @FixMethodOrder(MethodSorters.JVM)
 public class TransferTest {
@@ -26,10 +22,17 @@ public class TransferTest {
 
     private Account sourceAccount;
     private Account targetAccount;
-    private final Condition<? super Transaction> isHugeTransfer = new Condition<Transaction>(){
+    private final Condition<? super Transaction> isHugeTransfer = new Condition<Transaction>() {
         @Override
         public boolean matches(Transaction value) {
-            return 1==value.getAmount().compareTo(BigDecimal.valueOf(99999));
+            return 1 == value.getAmount().compareTo(BigDecimal.valueOf(99999));
+        }
+    };
+    private final Condition<? super Transaction> isNightTransfer = new Condition<Transaction>() {
+        @Override
+        public boolean matches(Transaction value) {
+            int hour = value.getDate().getHour();
+            return hour > 22 || hour < 2;
         }
     };
     private Account richAccount;
@@ -82,7 +85,7 @@ public class TransferTest {
         BigDecimal initialTargetBalance = targetAccount.getBalance();
         Transaction t1, t2;
         // when
-        t1 = sourceAccount.transferTo(targetAccount, BigDecimal.valueOf(500), LocalDateTime.of(2016,Month.OCTOBER,2,0,0));
+        t1 = sourceAccount.transferTo(targetAccount, BigDecimal.valueOf(500), LocalDateTime.of(2016, Month.OCTOBER, 2, 0, 0));
         bank.register(t1);
         bank.process();
         t2 = sourceAccount.transferTo(targetAccount, BigDecimal.valueOf(1500), LocalDateTime.now());
@@ -116,7 +119,7 @@ public class TransferTest {
         assertThat(richAccount.getBalance()).isLessThan(initialRichBalance);
         assertThat(targetAccount.getBalance()).isGreaterThan(initialTargetBalance);
         assertThat(processedTransactions)
-                .filteredOn(t ->t.getAmount().compareTo(BigDecimal.valueOf(99999))==1)
+                .filteredOn(t -> t.getAmount().compareTo(BigDecimal.valueOf(99999)) == 1)
                 .extracting("status")
                 .containsOnly(TransactionStatus.ON_HOLD);
     }
@@ -141,8 +144,7 @@ public class TransferTest {
     public void cautious_bank_should_block_all_transfers_at_night() throws Exception {
         // given
 
-        // uncomment to see random test failures
-        // GenericBank.isCautious = true;
+        GenericBank.isCautious = true;
         bigTransactions.transferBetween(richAccount, targetAccount);
 
         // when
@@ -150,9 +152,10 @@ public class TransferTest {
 
         // then
         assertThat(processedTransactions)
-                .filteredOn(isHugeTransfer)
+                .filteredOn(isNightTransfer)
                 .extracting("status")
                 .containsOnly(TransactionStatus.ON_HOLD);
+
     }
 
     @Test
@@ -160,6 +163,12 @@ public class TransferTest {
         assertThatExceptionOfType(InvalidTransactionException.class).isThrownBy(() -> {
             sourceAccount.transferTo(targetAccount, BigDecimal.valueOf(-500), LocalDateTime.of(2016, Month.OCTOBER, 2, 0, 0));
         });
+    }
+
+    @After
+    public void restoreCautiousStatus() {
+        // comment to see test failures caused by global state
+        GenericBank.isCautious = false;
     }
 
 }
