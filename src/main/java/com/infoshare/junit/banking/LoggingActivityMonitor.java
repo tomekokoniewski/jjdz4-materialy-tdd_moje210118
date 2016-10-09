@@ -28,6 +28,6 @@ public class LoggingActivityMonitor implements AccountMonitor {
 
     @Override
     public void update(Observable o, Object arg) {
-        System.out.println(o + " updated with " + arg);
+//        System.out.println(o + " updated with " + arg);
     }
 }

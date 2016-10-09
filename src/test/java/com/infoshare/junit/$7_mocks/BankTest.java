@@ -11,6 +11,7 @@ import java.time.Month;
 import java.util.Observer;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.isA;
 import static org.mockito.BDDMockito.given;
@@ -25,7 +26,7 @@ public class BankTest {
 
     @Test
     public void account_monitors_are_notified_about_transactions() throws Exception {
-
+        // given
         bank = new GenericBank();
         Observer accountMonitor = Mockito.mock(Observer.class);
         LoggingActivityMonitor loggingMonitor = new LoggingActivityMonitor();
@@ -38,12 +39,12 @@ public class BankTest {
         targetAccount.addObserver(accountMonitor);
         targetAccount.addObserver(loggingMonitor);
 
-        assertThat(sourceAccount.countObservers()).isEqualTo(2);
-        assertThat(targetAccount.countObservers()).isEqualTo(2);
-
         sourceAccount.register(new Transaction(BigDecimal.valueOf(10000), LocalDateTime.now()));
         targetAccount.register(new Transaction(BigDecimal.valueOf(10000), LocalDateTime.now()));
 
+        //
+        assertThat(sourceAccount.countObservers()).isEqualTo(2);
+        assertThat(targetAccount.countObservers()).isEqualTo(2);
         verify(accountMonitor, times(2)).update(any(), any());
     }
 
@@ -54,30 +55,33 @@ public class BankTest {
         Account sourceAccount = mock(Account.class);
         Account targetAccount = mock(Account.class);
         LocalDateTime transactionDate = LocalDateTime.of(2016, Month.OCTOBER, 2, 0, 0);
-        when(sourceAccount.transferTo(isA(Account.class), isA(BigDecimal.class), isA(LocalDateTime.class)))
-                .thenReturn( new Transaction(BigDecimal.valueOf(500), transactionDate, sourceAccount, targetAccount));
 
         // when
+        when(sourceAccount.transferTo(isA(Account.class), isA(BigDecimal.class), isA(LocalDateTime.class)))
+                .thenReturn( new Transaction(BigDecimal.valueOf(500), transactionDate, sourceAccount, targetAccount));
+        when(targetAccount.transferTo(isA(Account.class), isA(BigDecimal.class), isA(LocalDateTime.class)))
+                .thenReturn( new Transaction(BigDecimal.valueOf(500), transactionDate, targetAccount, sourceAccount));
+
         Transaction t = sourceAccount.transferTo(targetAccount, BigDecimal.ZERO, LocalDateTime.now());
+        bank.register(t);
+        bank.process();
+
+        t = targetAccount.transferTo(sourceAccount, BigDecimal.ZERO, LocalDateTime.now());
         bank.register(t);
         bank.process();
 
         // then
         assertThat(t.getAmount()).isEqualTo("500");
-        verify(sourceAccount, times(1)).register(any());
-        verify(targetAccount, times(1)).register(any());
+        verify(sourceAccount, times(2)).register(any());
+        verify(targetAccount, times(2)).register(any());
     }
 
     @Test
-    public void should_not_change_source_balance_when_target_account_cant_register_transaction() throws Exception {
-        TransferBank bank = new GenericBank();
-        Account sourceAccount = mock(Account.class);
-        Account targetAccount = mock(Account.class);
-        Transaction t = new Transaction(BigDecimal.valueOf(500), LocalDateTime.now(), sourceAccount, targetAccount);
-        bank.register(t);
-        bank.process();
-        doThrow(new InvalidTransactionException()).when(targetAccount).register(isA(Transaction.class));
-        verify(sourceAccount, never().description("should never register failed transaction")).register(any());
+    public void stub_failure_of_transfer_processing() {
+        TransferBank bank = mock(GenericBank.class);
+        doThrow(InvalidTransactionException.class).when(bank).process();
+
+        assertThatThrownBy(bank::process).isInstanceOf(InvalidTransactionException.class);
     }
 
 }

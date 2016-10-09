@@ -123,7 +123,7 @@ public class TransferTest {
 
     @Test
     public void bank_should_hold_huge_transfers() throws Exception {
-        GenericBank.isCautious = false;
+        //GenericBank.isCautious = false;
         // given
         bigTransactions.transferBetween(richAccount, targetAccount);
 

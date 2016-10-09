@@ -3,6 +3,7 @@ package com.infoshare.junit.$3_basic_asserts;
 import com.infoshare.junit.$2_test_fixture.TransactionsBuilder;
 import com.infoshare.junit.banking.Account;
 import com.infoshare.junit.banking.Transaction;
+import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -21,8 +22,8 @@ public class TransactionTest {
 
     private static Account account;
 
-    @BeforeClass
-    public static void setUp() throws Exception {
+    @Before
+    public void setUp() throws Exception {
         account = new Account("Kent Beck");
         new TransactionsBuilder()
                 .after(LocalDateTime.of(2015, Month.DECEMBER, 1, 0, 0))
