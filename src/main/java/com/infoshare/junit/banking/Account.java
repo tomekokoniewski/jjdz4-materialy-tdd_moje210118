@@ -51,4 +51,11 @@ public class Account extends Observable {
             return d.isAfter(start.atStartOfDay()) && d.isBefore(end.atStartOfDay());
         })).collect(Collectors.toList());
     }
+
+    public Transaction transferTo(Account targetAccount, BigDecimal amount, LocalDateTime nextDate) throws InvalidTransactionException {
+        if (amount.signum()<0) {
+            throw new InvalidTransactionException();
+        }
+        return new Transaction(amount, nextDate, this, targetAccount);
+    }
 }
