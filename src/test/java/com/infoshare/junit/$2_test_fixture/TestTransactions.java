@@ -7,7 +7,7 @@ import java.time.Month;
 
 public class TestTransactions {
     private static final int DEFAULT_AMOUNT = 100;
-    public static final int HUGE_AMOUNT = 1000000;
+    public static final int HUGE_AMOUNT = 500000;
 
     public static void smallValueTransactionsFor(Account account) {
         new TransactionsBuilder()
