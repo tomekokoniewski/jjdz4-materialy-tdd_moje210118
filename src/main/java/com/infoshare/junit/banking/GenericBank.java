@@ -1,8 +1,5 @@
 package com.infoshare.junit.banking;
 
-import com.google.common.collect.ImmutableCollection;
-import com.google.common.collect.ImmutableList;
-
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -16,7 +13,7 @@ public class GenericBank implements TransferBank {
 
     private List<Transaction> transactions = new ArrayList<>();
 
-    private TransactionStore transactionStore = new TreeTransactionStore();
+    private TransactionStore transactionStore = new ListTransactionStore();
 
     private HashMap<String, Account> accounts = new HashMap<>();
 
@@ -36,7 +33,7 @@ public class GenericBank implements TransferBank {
     public Collection<Transaction> process() {
         final LocalDateTime now = LocalDateTime.now();
         transactions.stream().forEach(t -> {
-            if (isNightTransaction(t) || isHugeTransaction(t)) {
+            if (isFutureTransaction(t) || isNightTransaction(t) || isHugeTransaction(t)) {
                 transactionStore.reject(t);
                 return;
             }
@@ -56,40 +53,20 @@ public class GenericBank implements TransferBank {
         return transactionStore.get();
     }
 
+    private boolean isFutureTransaction(Transaction t) {
+        return t.getDate().isAfter(LocalDateTime.now());
+    }
+
     private boolean isHugeTransaction(Transaction t) {
-        return t.getStatus()== TransactionStatus.NEW && 1==t.getAmount().compareTo(BigDecimal.valueOf(99999));
+        return t.getStatus()== TransactionStatus.NEW
+                && 1==t.getAmount().compareTo(BigDecimal.valueOf(99999));
     }
 
     private boolean isNightTransaction(Transaction t) {
-        return GenericBank.isCautious && (t.getDate().getHour()>22 || t.getDate().getHour()<2);
+        return GenericBank.isCautious
+                && (t.getDate().getHour()>22 || t.getDate().getHour()<2);
     }
 
 }
 
-interface TransactionStore extends Collection<Transaction> {
-    void accept(Transaction t);
-    void reject(Transaction t);
-    Collection<Transaction> get();
-}
-
-class TreeTransactionStore extends ArrayList<Transaction> implements TransactionStore {
-    @Override
-    public void accept(Transaction t) {
-        Transaction transaction = new Transaction(t.getAmount(),t.getDate(), t.getSource(), t.getTarget());
-        transaction.setStatus(TransactionStatus.SUCCESS);
-        add(transaction);
-    }
-
-    @Override
-    public void reject(Transaction t) {
-        Transaction transaction = new Transaction(t.getAmount(),t.getDate(), t.getSource(), t.getTarget());
-        transaction.setStatus(TransactionStatus.ON_HOLD);
-        add(transaction);
-    }
-
-    @Override
-    public ImmutableCollection<Transaction> get() {
-        return ImmutableList.copyOf(this);
-    }
-
-};
+;
