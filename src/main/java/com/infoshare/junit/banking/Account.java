@@ -31,14 +31,14 @@ public class Account extends Observable {
 
     public void register(Transaction transaction) throws DuplicatedTransactionException, InvalidTransactionException {
         if (transaction == null) {
-            throw new InvalidTransactionException();
+            throw new InvalidTransactionException(InvalidTransactionException.EMPTY_TRANSACTION);
         }
         if (transactions.contains(transaction)) {
             throw new DuplicatedTransactionException();
         }
         BigDecimal newBalance = getBalance().add(transaction.getAmount(), MathContext.DECIMAL32);
         if (-1 == newBalance.signum()) {
-            throw new InvalidTransactionException();
+            throw new InvalidTransactionException(InvalidTransactionException.NOT_ENOUGH_FUNDS);
         }
         setChanged();
         transactions.add(transaction);
@@ -55,7 +55,7 @@ public class Account extends Observable {
 
     public Transaction transferTo(Account targetAccount, BigDecimal amount, LocalDateTime nextDate) throws InvalidTransactionException {
         if (amount.signum() < 0) {
-            throw new InvalidTransactionException();
+            throw new InvalidTransactionException(InvalidTransactionException.NEGATIVE_AMOUNT);
         }
         return new Transaction(amount, nextDate, this, targetAccount);
     }

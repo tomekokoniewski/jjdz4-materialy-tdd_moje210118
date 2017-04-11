@@ -1,10 +1,9 @@
 package com.infoshare.junit.$4_matchers;
 
-import com.infoshare.junit.$2_test_fixture.TransactionsBuilder;
+import com.infoshare.junit.banking.TransactionsBuilder;
 import com.infoshare.junit.banking.Account;
 import com.infoshare.junit.banking.Transaction;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 
 import java.math.BigDecimal;

@@ -1,9 +1,13 @@
 package com.infoshare.junit.$2_test_fixture;
 
 import com.infoshare.junit.banking.Account;
+import com.infoshare.junit.banking.TransactionsBuilder;
 
+import java.time.DayOfWeek;
 import java.time.LocalDateTime;
 import java.time.Month;
+import java.time.chrono.ChronoPeriod;
+import java.time.temporal.TemporalUnit;
 
 public class TestTransactions {
     private static final int DEFAULT_AMOUNT = 100;
@@ -33,6 +37,14 @@ public class TestTransactions {
                 .before(LocalDateTime.now())
                 .valueBetween(1,10000000)
                 .totalOf(HUGE_AMOUNT)
+                .register(account);
+    }
+
+    public static void nightTransactionsFor(Account account) {
+        new TransactionsBuilder()
+                .after(LocalDateTime.now().withHour(22))
+                .before(LocalDateTime.now().plusDays(1).withHour(2))
+                .valueBetween(1,1000)
                 .register(account);
     }
 }

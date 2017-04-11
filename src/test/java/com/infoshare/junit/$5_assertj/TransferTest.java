@@ -1,6 +1,6 @@
 package com.infoshare.junit.$5_assertj;
 
-import com.infoshare.junit.$2_test_fixture.TransactionsBuilder;
+import com.infoshare.junit.$2_test_fixture.TestTransactions;
 import com.infoshare.junit.banking.*;
 import org.assertj.core.api.Condition;
 import org.assertj.core.api.SoftAssertions;
@@ -13,6 +13,7 @@ import java.time.Month;
 import java.util.Collection;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.fail;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.junit.Assert.fail;
 
@@ -38,6 +39,7 @@ public class TransferTest {
     };
     private Account richAccount;
     private TransactionsBuilder bigTransactions;
+    private TransactionsBuilder nightTransactions;
 
     @BeforeClass
     public static void setupBank() {
@@ -64,6 +66,13 @@ public class TransferTest {
                 .valueBetween(50000, 150000)
                 .after(LocalDateTime.of(2016, Month.JANUARY, 1, 0, 0))
                 .before(LocalDateTime.of(2016, Month.APRIL, 1, 0, 0))
+                .using(bank);
+
+        nightTransactions = new TransactionsBuilder()
+                .totalOf(10)
+                .valueBetween(50000, 150000)
+                .after(LocalDateTime.of(2016, Month.JANUARY, 1, 22, 0))
+                .before(LocalDateTime.of(2016, Month.APRIL, 2, 2, 0))
                 .using(bank);
     }
 
@@ -136,8 +145,9 @@ public class TransferTest {
     public void cautious_bank_should_block_all_transfers_at_night() throws Exception {
         // given
 
-        //GenericBank.isCautious = true;
-        bigTransactions.transferBetween(richAccount, targetAccount);
+        // uncomment to see random test failures
+        // GenericBank.isCautious = true;
+        nightTransactions.transferBetween(sourceAccount, targetAccount);
 
         // when
         Collection<Transaction> processedTransactions = bank.process();

@@ -1,10 +1,12 @@
 package com.infoshare.junit.$3_basic_asserts;
 
-import com.infoshare.junit.$2_test_fixture.TransactionsBuilder;
+import static org.assertj.core.api.Assertions.*;
+
+import com.infoshare.junit.banking.TransactionsBuilder;
 import com.infoshare.junit.banking.Account;
 import com.infoshare.junit.banking.Transaction;
+import nl.jqno.equalsverifier.EqualsVerifier;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 
 import java.math.BigDecimal;
@@ -12,6 +14,7 @@ import java.math.MathContext;
 import java.time.LocalDateTime;
 import java.time.Month;
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.Set;
 
 import static org.junit.Assert.*;
@@ -25,12 +28,12 @@ public class TransactionTest {
     @Before
     public void setUp() throws Exception {
         account = new Account("Kent Beck");
-        new TransactionsBuilder()
-                .after(LocalDateTime.of(2015, Month.DECEMBER, 1, 0, 0))
-                .before(LocalDateTime.of(2016, Month.APRIL, 30, 0, 0))
-                .valueBetween(1, 100000)
-                .totalOf(TRANSACTION_COUNT)
-                .register(account);
+//        new TransactionsBuilder()
+//                .after(LocalDateTime.of(2015, Month.DECEMBER, 1, 0, 0))
+//                .before(LocalDateTime.of(2016, Month.APRIL, 30, 0, 0))
+//                .valueBetween(1, 100000)
+//                .totalOf(TRANSACTION_COUNT)
+//                .register(account);
     }
 
     @Test
@@ -81,6 +84,15 @@ public class TransactionTest {
         // TODO - why this assertion fails? fix it
         assertSame("history shouldn't change", historyOne, historyTwo);
 
+    }
+
+    @Test
+    public void verifyEquals() {
+        Transaction[] transactions = new TransactionsBuilder().withRandomDates().value(100).totalOf(20).build().toArray(new Transaction[2]);
+        assertThat(transactions).doesNotContainNull();
+        EqualsVerifier.forClass(Transaction.class)
+                .withIgnoredFields("status") // comment to see error messages
+                .withPrefabValues(Transaction.class,transactions[0],transactions[1]).verify();
     }
 
     private BigDecimal sumOfTransactions(Collection<Transaction> transactions) {

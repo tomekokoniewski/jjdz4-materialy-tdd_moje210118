@@ -6,4 +6,7 @@ public interface TransferBank {
     void register(Transaction transaction);
     Collection<Transaction> process();
     Account getAccountFor(String owner);
+    default int getCommercialAccountsCount() {
+        return 0;
+    }
 }
