@@ -1,7 +1,7 @@
 package com.infoshare.junit.automotive;
 
 public class VW extends AbstractCar {
-    private boolean labMode = true;
+    private boolean labMode = false;
 
     public void setLabMode(Boolean value) {
         labMode = value;
