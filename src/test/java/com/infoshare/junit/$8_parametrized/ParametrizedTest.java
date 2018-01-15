@@ -23,12 +23,12 @@ public class ParametrizedTest {
     public void bank_should_transfer_money(int amount, boolean valid) throws Exception {
         TransferBank bank = new GenericBank();
         Account sourceAccount = bank.getAccountFor("Erich Gamma");
-        sourceAccount.register(new Transaction(BigDecimal.valueOf(1000), LocalDateTime.now()));
+        sourceAccount.register(new Transaction(1000, LocalDateTime.now()));
         Account targetAccount = bank.getAccountFor("Dan North");
-        Transaction transaction = new Transaction(BigDecimal.valueOf(amount), LocalDateTime.now(), sourceAccount, targetAccount);
+        Transaction transaction = new Transaction(amount, LocalDateTime.now(), sourceAccount, targetAccount);
         bank.register(transaction);
         bank.process();
-        assertThat(targetAccount).hasFieldOrPropertyWithValue("balance", BigDecimal.valueOf(amount));
+        assertThat(targetAccount).hasFieldOrPropertyWithValue("balance", amount);
     }
 
     @Test

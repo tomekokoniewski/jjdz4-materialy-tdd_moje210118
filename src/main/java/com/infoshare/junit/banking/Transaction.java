@@ -1,35 +1,34 @@
 package com.infoshare.junit.banking;
 
 import java.math.BigDecimal;
-import java.math.MathContext;
 import java.time.LocalDateTime;
 import java.util.Objects;
 
 public class Transaction implements Comparable<Transaction> {
 
-    private final BigDecimal amount;
+    private final Integer amount;
     private final LocalDateTime date;
     private final Account source;
     private final Account target;
 
     private TransactionStatus status = TransactionStatus.NEW;
 
-    public Transaction(BigDecimal amount, LocalDateTime date, Account source, Account target) {
-        this.amount = amount.round(MathContext.DECIMAL32);
+    public Transaction(Integer amount, LocalDateTime date, Account source, Account target) {
+        this.amount = amount;
         this.date = date;
         this.source = source;
         this.target = target;
     }
 
-    public Transaction(BigDecimal bigDecimal, LocalDateTime now) {
-        this(bigDecimal, now, null, null);
+    public Transaction(Integer amount, LocalDateTime now) {
+        this(amount, now, null, null);
     }
 
     public LocalDateTime getDate() {
         return date;
     }
 
-    public BigDecimal getAmount() {
+    public Integer getAmount() {
         return amount;
     }
 

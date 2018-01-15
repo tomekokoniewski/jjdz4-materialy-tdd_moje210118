@@ -3,7 +3,6 @@ package com.infoshare.junit.banking;
 import com.google.common.collect.ImmutableSet;
 
 import java.math.BigDecimal;
-import java.math.MathContext;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.HashSet;
@@ -13,15 +12,16 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 public class Account extends Observable {
+
     private String owner;
-    private BigDecimal balance = BigDecimal.ZERO;
+    private Integer balance = 0;
     private Set<Transaction> transactions = new HashSet<>();
 
     public Account(String owner) {
         this.owner = owner;
     }
 
-    public BigDecimal getBalance() {
+    public Integer getBalance() {
         return balance;
     }
 
@@ -36,8 +36,8 @@ public class Account extends Observable {
         if (transactions.contains(transaction)) {
             throw new DuplicatedTransactionException();
         }
-        BigDecimal newBalance = getBalance().add(transaction.getAmount(), MathContext.DECIMAL32);
-        if (-1 == newBalance.signum()) {
+        Integer newBalance = getBalance() + transaction.getAmount();
+        if (newBalance<0) {
             throw new InvalidTransactionException(InvalidTransactionException.NOT_ENOUGH_FUNDS);
         }
         setChanged();
@@ -53,8 +53,8 @@ public class Account extends Observable {
         })).collect(Collectors.toList());
     }
 
-    public Transaction transferTo(Account targetAccount, BigDecimal amount, LocalDateTime nextDate) throws InvalidTransactionException {
-        if (amount.signum() < 0) {
+    public Transaction transferTo(Account targetAccount, Integer amount, LocalDateTime nextDate) throws InvalidTransactionException {
+        if (amount < 0) {
             throw new InvalidTransactionException(InvalidTransactionException.NEGATIVE_AMOUNT);
         }
         return new Transaction(amount, nextDate, this, targetAccount);

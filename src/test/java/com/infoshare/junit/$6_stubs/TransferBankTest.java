@@ -17,6 +17,7 @@ public class TransferBankTest {
     @Test
     public void stub_account_owners() {
         TransferBank bank = mock(GenericBank.class);
+
         // TODO use when(...).thenReturn(...) to make test pass
 
         Account account1 = bank.getAccountFor("1");

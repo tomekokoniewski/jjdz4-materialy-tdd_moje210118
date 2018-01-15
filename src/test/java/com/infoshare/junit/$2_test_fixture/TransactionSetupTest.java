@@ -2,25 +2,24 @@ package com.infoshare.junit.$2_test_fixture;
 
 import com.infoshare.junit.banking.*;
 import org.junit.Test;
-import org.junit.experimental.categories.Category;
 
-import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.Month;
 import java.time.Period;
+import java.util.concurrent.ThreadLocalRandom;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 public class TransactionSetupTest {
 
+    private final ThreadLocalRandom rand = ThreadLocalRandom.current();
+
     @Test
     public void new_account_should_not_have_any_transactions() {
         // given
         Account emptyAccount = new Account("Erich Gamma");
-
-        // when
 
         // then
         assertEquals(emptyAccount.history().size(), 0);
@@ -50,9 +49,11 @@ public class TransactionSetupTest {
         account.addObserver(activityMonitor);
 
         // when
-        for (int i=0;i<100;i++) {
+        for (int i = 0; i < 100; i++) {
             try {
-                account.register(new Transaction(new BigDecimal(100000*Math.random()), LocalDateTime.of(2015,Month.OCTOBER,1,0,0) ));
+                LocalDateTime transcationDate = LocalDateTime.of(2015, Month.OCTOBER, 1, 0, 0);
+                Integer amount = Integer.valueOf(rand.nextInt(100000));
+                account.register(new Transaction(amount, transcationDate));
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -72,9 +73,10 @@ public class TransactionSetupTest {
 
         // when
         LocalDateTime date = LocalDateTime.of(2015, Month.OCTOBER, 1, 0, 0);
-        for (int i=0;i<100;i++) {
+        for (int i = 0; i < 100; i++) {
             try {
-                account.register(new Transaction(new BigDecimal(100000*Math.random()), date ));
+                Double v = 100000 * Math.random();
+                account.register(new Transaction(Integer.valueOf(v.intValue()), date));
                 date = date.plus(Period.ofDays(3));
             } catch (Exception e) {
                 e.printStackTrace();
@@ -84,7 +86,7 @@ public class TransactionSetupTest {
         // then
         LocalDate start = LocalDate.of(2016, 3, 20);
         LocalDate end = LocalDate.of(2016, 4, 1);
-        assertTrue(account.historyBetween(start, end).size()>0);
+        assertTrue(account.historyBetween(start, end).size() > 0);
     }
 
     @Test(expected = DuplicatedTransactionException.class)
@@ -94,9 +96,11 @@ public class TransactionSetupTest {
         activityMonitor.connect();
         Account account = new Account("Robert Martin");
         account.addObserver(activityMonitor);
-        for (int i=0;i<100;i++) {
+        for (int i = 0; i < 100; i++) {
             try {
-                account.register(new Transaction(new BigDecimal(100000*Math.random()), LocalDateTime.of(2015,Month.OCTOBER,1,0,0).plus(Period.ofDays(3)) ));
+                LocalDateTime transactionDate = LocalDateTime.of(2015, Month.OCTOBER, 1, 0, 0).plus(Period.ofDays(3));
+                Integer amount = Integer.valueOf(rand.nextInt(10000));
+                account.register(new Transaction(amount, transactionDate));
             } catch (Exception e) {
                 e.printStackTrace();
             }

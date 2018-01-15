@@ -1,22 +1,18 @@
 package com.infoshare.junit.$3_basic_asserts;
 
-import static org.assertj.core.api.Assertions.*;
-
-import com.infoshare.junit.banking.TransactionsBuilder;
 import com.infoshare.junit.banking.Account;
 import com.infoshare.junit.banking.Transaction;
+import com.infoshare.junit.banking.TransactionsBuilder;
 import nl.jqno.equalsverifier.EqualsVerifier;
 import org.junit.Before;
 import org.junit.Test;
 
 import java.math.BigDecimal;
-import java.math.MathContext;
-import java.time.LocalDateTime;
-import java.time.Month;
 import java.util.Collection;
-import java.util.Iterator;
 import java.util.Set;
+import java.util.stream.Collectors;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.*;
 
 public class TransactionTest {
@@ -38,7 +34,6 @@ public class TransactionTest {
 
     @Test
     public void account_balance_should_be_equal_to_sum_of_transactions() throws Exception {
-        BigDecimal historyBalance = sumOfTransactions(account.history());
         // TODO use assertEquals, assertTrue, assertFalse
         fail();
     }
@@ -46,7 +41,7 @@ public class TransactionTest {
     @Test
     public void registering_transaction_should_change_balance_1() throws Exception {
         // given
-        BigDecimal originalBalance = account.getBalance();
+        Integer originalBalance = account.getBalance();
         // when
         new TransactionsBuilder().value(100).totalOf(1).register(account);
         // then
@@ -57,7 +52,7 @@ public class TransactionTest {
     @Test
     public void registering_transaction_should_change_balance_2() throws Exception {
         // given
-        BigDecimal originalBalance = account.getBalance();
+        Integer originalBalance = account.getBalance();
         // when
         new TransactionsBuilder().value(100).totalOf(1).register(account);
         // then
@@ -95,10 +90,8 @@ public class TransactionTest {
                 .withPrefabValues(Transaction.class,transactions[0],transactions[1]).verify();
     }
 
-    private BigDecimal sumOfTransactions(Collection<Transaction> transactions) {
-        return transactions.stream()
-                .map(Transaction::getAmount)
-                .reduce(BigDecimal.ZERO, (acc, value) -> acc.add(value, MathContext.DECIMAL32));
+    private Integer sumOfTransactions(Collection<Transaction> transactions) {
+        return transactions.stream().collect(Collectors.summingInt(t->t.getAmount()));
     }
 }
 

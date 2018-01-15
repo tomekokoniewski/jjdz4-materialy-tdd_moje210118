@@ -18,7 +18,7 @@ public class GenericBank implements TransferBank {
     private HashMap<String, Account> accounts = new HashMap<>();
 
     public Account getAccountFor(String owner) {
-        if(accounts.containsKey(owner)) {
+        if (accounts.containsKey(owner)) {
             return accounts.get(owner);
         }
         Account newAccount = new Account(owner);
@@ -38,7 +38,7 @@ public class GenericBank implements TransferBank {
                 return;
             }
 
-            Transaction deduction = new Transaction(t.getAmount().negate(), now, t.getSource(), t.getTarget());
+            Transaction deduction = new Transaction(-1 * t.getAmount(), now, t.getSource(), t.getTarget());
             Transaction deposit = new Transaction(t.getAmount(), now, t.getSource(), t.getTarget());
             try {
                 t.getSource().register(deduction);
@@ -58,13 +58,13 @@ public class GenericBank implements TransferBank {
     }
 
     private boolean isHugeTransaction(Transaction t) {
-        return t.getStatus()== TransactionStatus.NEW
-                && 1==t.getAmount().compareTo(BigDecimal.valueOf(99999));
+        return t.getStatus() == TransactionStatus.NEW
+                && t.getAmount() > 99999;
     }
 
     private boolean isNightTransaction(Transaction t) {
         return GenericBank.isCautious
-                && (t.getDate().getHour()>22 || t.getDate().getHour()<2);
+                && (t.getDate().getHour() > 22 || t.getDate().getHour() < 2);
     }
 
 }

@@ -14,7 +14,7 @@ public class TransactionStubTest {
 
         // TODO use when(...).thenReturn(...) to make test pass
 
-        assertThat(t.getAmount()).isEqualTo("10");
+        assertThat(t.getAmount()).isEqualTo(10);
     }
 
     @Test
@@ -23,9 +23,9 @@ public class TransactionStubTest {
 
         // TODO use when(...).thenReturn(...) to make test pass
 
-        assertThat(t.getAmount()).isEqualTo("10");
-        assertThat(t.getAmount()).isEqualTo("100");
-        assertThat(t.getAmount()).isEqualTo("1000");
+        assertThat(t.getAmount()).isEqualTo(10);
+        assertThat(t.getAmount()).isEqualTo(100);
+        assertThat(t.getAmount()).isEqualTo(1000);
     }
 
 

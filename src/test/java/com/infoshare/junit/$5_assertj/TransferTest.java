@@ -1,6 +1,5 @@
 package com.infoshare.junit.$5_assertj;
 
-import com.infoshare.junit.$2_test_fixture.TestTransactions;
 import com.infoshare.junit.banking.*;
 import org.assertj.core.api.Condition;
 import org.assertj.core.api.SoftAssertions;
@@ -13,7 +12,6 @@ import java.time.Month;
 import java.util.Collection;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.fail;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.junit.Assert.fail;
 
@@ -27,7 +25,7 @@ public class TransferTest {
     private final Condition<? super Transaction> isHugeTransfer = new Condition<Transaction>() {
         @Override
         public boolean matches(Transaction value) {
-            return 1 == value.getAmount().compareTo(BigDecimal.valueOf(99999));
+            return value.getAmount()>99999;
         }
     };
     private final Condition<? super Transaction> isNightTransfer = new Condition<Transaction>() {
@@ -37,6 +35,7 @@ public class TransferTest {
             return hour > 22 || hour < 2;
         }
     };
+
     private Account richAccount;
     private TransactionsBuilder bigTransactions;
     private TransactionsBuilder nightTransactions;
@@ -53,13 +52,13 @@ public class TransferTest {
         bank = new GenericBank();
 
         sourceAccount = bank.getAccountFor("Kent Beck");
-        sourceAccount.register(new Transaction(BigDecimal.valueOf(10000), LocalDateTime.now()));
+        sourceAccount.register(new Transaction(10000, LocalDateTime.now()));
 
         targetAccount = bank.getAccountFor("Dan North");
-        targetAccount.register(new Transaction(BigDecimal.valueOf(10000), LocalDateTime.now()));
+        targetAccount.register(new Transaction(10000, LocalDateTime.now()));
 
         richAccount = bank.getAccountFor("Mark Zuckerberg");
-        richAccount.register(new Transaction(BigDecimal.valueOf(1000000), LocalDateTime.now()));
+        richAccount.register(new Transaction(1000000, LocalDateTime.now()));
 
         bigTransactions = new TransactionsBuilder()
                 .totalOf(10)
@@ -79,14 +78,15 @@ public class TransferTest {
     @Test
     public void bank_should_sucessfully_transfer_between_accounts() throws Exception {
         // given
-        BigDecimal initialTargetBalance = targetAccount.getBalance();
-        Transaction t = sourceAccount.transferTo(targetAccount, BigDecimal.valueOf(500), LocalDateTime.now());
+        Integer initialTargetBalance = targetAccount.getBalance();
+        Transaction t = sourceAccount.transferTo(targetAccount, 500, LocalDateTime.now());
 
         // when
         bank.register(t);
         bank.process();
 
         // then
+
         // TODO use Assertions.assertThat to verify correct transfer
         fail();
     }
@@ -94,13 +94,14 @@ public class TransferTest {
     @Test
     public void processing_without_registered_transactions_should_not_change_accounts() throws Exception {
         // given
-        BigDecimal initialTargetBalance = targetAccount.getBalance();
+        Integer initialTargetBalance = targetAccount.getBalance();
         Transaction t1, t2;
+
         // when
-        t1 = sourceAccount.transferTo(targetAccount, BigDecimal.valueOf(500), LocalDateTime.of(2016, Month.OCTOBER, 2, 0, 0));
+        t1 = sourceAccount.transferTo(targetAccount, 500, LocalDateTime.of(2016,Month.OCTOBER,2,0,0));
         bank.register(t1);
         bank.process();
-        t2 = sourceAccount.transferTo(targetAccount, BigDecimal.valueOf(1500), LocalDateTime.now());
+        t2 = sourceAccount.transferTo(targetAccount, 1500, LocalDateTime.now());
         bank.register(t2);
         bank.process();
         bank.process();
@@ -116,14 +117,15 @@ public class TransferTest {
     @Test
     public void bank_should_hold_transfers_above_99999() throws Exception {
         // given
-        BigDecimal initialRichBalance = richAccount.getBalance();
-        BigDecimal initialTargetBalance = targetAccount.getBalance();
+        Integer initialRichBalance = richAccount.getBalance();
+        Integer initialTargetBalance = targetAccount.getBalance();
         bigTransactions.transferBetween(richAccount, targetAccount);
 
         // when
         Collection<Transaction> processedTransactions = bank.process();
 
         // then
+
         // TODO use Assertions.assertThat to verify test
         fail();
     }
