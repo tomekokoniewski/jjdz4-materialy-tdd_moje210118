@@ -1,8 +1,11 @@
 package com.infoshare.junit.$10_rover;
 
+import com.infoshare.junit.rover.Direction;
 import com.infoshare.junit.rover.Rover;
+import com.infoshare.junit.rover.Wise;
 import junitparams.JUnitParamsRunner;
 import junitparams.Parameters;
+import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -12,32 +15,39 @@ import static org.assertj.core.api.Assertions.assertThat;
 @RunWith(JUnitParamsRunner.class)
 public class RoverTest {
 
-    @Test
-    @Ignore
-    public void should_turn_right_once() {
-        Rover rover = new Rover();
-        String position = rover.execute("R");
-        assertThat(position).isEqualTo("0:0:E");
-    }
+    private Rover rover;
 
-    @Test
-    @Ignore
-    public void should_turn_right_twice() {
-        Rover rover = new Rover();
-        String position = rover.execute("R");
-        assertThat(position).isEqualTo("0:0:E");
+    @Before
+    public void before() {
+        rover = new Rover();
     }
-
-    // tests above can be simplified using JUnitParams plugin
 
     @Test
     @Parameters({
-            "R, 0:0:E",
-            "RR, 0:0:S"
+            "C, N, E",
+            "CT, N, W",
+            "C, W, N",
     })
-    public void should_turn_right(String commands, String position) {
-        Rover rover = new Rover();
-        String result = rover.execute(commands);
-        assertThat(result).isEqualTo(position);
+    public void turningTest(Wise wise, Direction initDirection, Direction direction) {
+        rover.setDirection(initDirection);
+        rover.turn(wise);
+        assertThat(rover.getDirection()).isEqualTo(direction);
+    }
+
+    @Test
+    public void movementTest() {
+        rover.move(2);
+        assertThat(rover.getCoordinates()).isEqualTo(new int[]{2,0});
+    }
+
+    @Test
+    public void turnAndMoveTest() {
+        rover.execute("CCFFCFDFR");
+        assertThat(rover.getCoordinates()).isEqualTo(new int[]{8,9});
+    }
+
+    @Test
+    public void turnAndMoveOutputStringTest() {
+        assertThat(rover.execute("CCFFCFDF")).isEqualTo("7:9:S");
     }
 }

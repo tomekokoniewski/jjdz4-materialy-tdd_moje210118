@@ -49,7 +49,7 @@ public class IffyRoverTest {
         assertEquals(0, rover.getPositionY());
     }
 
-    @Test(expected = RoverOutOfFieldException.class)
+    @Test(expected = RoverOutOfFieldException.class) //test przejdzie jezeli bedzie wyjatek0
     public void testShouldThrowExceptionIfFallsOffPlateau() {
         IffyRover rover = new IffyRover();
         rover.move("F");
@@ -59,5 +59,9 @@ public class IffyRoverTest {
         rover.move("F");
         rover.move("F");
     }
+
+    //field 5,5
+    //
+
 
 }
